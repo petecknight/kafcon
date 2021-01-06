@@ -1,0 +1,23 @@
+apply plugin: "java"
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	mysql
+}
+
+dependencies {
+	mysql "mysql:mysql-connector-java:8.0.17"
+}
+
+task copyMysql(type: Copy) {
+	from configurations.mysql
+	into "$buildDir/mysql"
+}
+
+build{
+	dependsOn copyMysql
+}
+

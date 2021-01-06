@@ -1,0 +1,57 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kafcon
+  labels:
+    app: kafcon
+spec:
+  selector:
+    app: kafcon
+  ports:
+    - name: web
+      port: 5181
+      nodePort: 30012
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafcon
+  namespace: default
+  labels:
+    app: kafcon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafcon
+  template:
+    metadata:
+      labels:
+        app: kafcon
+    spec:
+      containers:
+      - name: kafcon
+        image: petecknight/kafcon:1
+        ports:
+          - name: web
+            containerPort: 5181
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kafcon
+  namespace: default
+  labels:
+    app: kafcon
+    release: monitor-stack
+spec:
+  selector:
+    matchLabels:
+      app: kafcon
+  namespaceSelector:
+    any: true
+  endpoints:
+    - port: web
+      path: /metrics
+      interval: 10s
